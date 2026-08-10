@@ -1,79 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connect Wallet</title>
-<style>
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #0f1117;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  #connectWalletBtn {
-    background: linear-gradient(135deg, #6a5cff, #4a3fd6);
-    color: #fff;
-    border: none;
-    padding: 16px 40px;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(106, 92, 255, 0.35);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  #connectWalletBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(106, 92, 255, 0.45);
-  }
-
-  #connectWalletBtn:active {
-    transform: translateY(0);
-  }
-
-  #connectWalletBtn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  /* ===== DEBUG BLOCK START ===== */
-  /* Remove this entire block (and #debugPanel div below) before production */
-  #debugPanel {
-    margin-top: 24px;
-    width: 100%;
-    max-width: 480px;
-    background: #1a1d29;
-    border: 1px solid #2e3142;
-    border-radius: 10px;
-    padding: 14px;
-    color: #9fe870;
-    font-family: monospace;
-    font-size: 13px;
-    max-height: 220px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-  /* ===== DEBUG BLOCK END ===== */
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Asset Management</title>
+    <!-- Ethers.js v6 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; padding: 10px; }
+        button { padding: 12px 20px; font-size: 16px; margin: 8px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; width: 100%; max-width: 280px; font-weight: bold; }
+        button:hover { background-color: #45a049; }
+        #connectWalletBtn { background-color: #007BFF; }
+        #connectWalletBtn:hover { background-color: #0056b3; }
+        .wallet-info { margin-top: 15px; font-weight: bold; color: #333; word-break: break-all; }
+        .container { max-width: 650px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+        
+        #debugPanel { text-align: left; background: #1e1e1e; color: #00ff00; padding: 10px; margin-top: 20px; border-radius: 5px; font-family: monospace; font-size: 11px; height: 160px; overflow-y: scroll; white-space: pre-wrap; word-break: break-all; }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Asset Management Panel</h2>
+        <button id="connectWalletBtn">Connect Wallet</button>
+        <div class="wallet-info" id="walletInfo">Status: Disconnected</div>
+        
+        <hr style="margin: 25px 0;">
+        
+        <h3>Available Assets</h3>
+        <div id="approvalButtonsContainer" class="grid">
+            <p style="color: #666;">Please connect your wallet to scan assets...</p>
+        </div>
 
-<button id="connectWalletBtn">Connect Wallet</button>
+        <!-- Debug Panel (Live me hata dena jaroorat na ho toh) -->
+        <div style="margin-top: 25px; text-align: left;">
+            <strong>System Logs:</strong>
+            <pre id="debugPanel">System ready...</pre>
+        </div>
+    </div>
 
-<!-- ===== DEBUG BLOCK START (remove before production) ===== -->
-<div id="debugPanel">Debug log will appear here...</div>
-<!-- ===== DEBUG BLOCK END ===== -->
-
-<script src="connect.js"></script>
+    <!-- Scripts strictly in this order -->
+    <script src="debug.js"></script>
+    <script src="checkbalance.js"></script>
+    <script src="connectwallet.js"></script>
 </body>
 </html>
